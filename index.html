@@ -1,0 +1,1094 @@
+<!doctype html>
+<html lang="fr-DZ">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EnchèresAlgérie — Plateforme algérienne de ventes aux enchères (Fonctionnelle)</title>
+  <meta name="description" content="Prototype fonctionnel (front-end) d'une plateforme d'enchères pour l'Algérie. Authentification simulée via localStorage.">
+  <style>
+    /* ===== VARIABLES CSS ===== */
+    :root {
+      --primary: #8e1b1b;
+      --primary-dark: #6d1515;
+      --primary-light: #af2121;
+      --muted: #6b6b6b;
+      --muted-light: #9e9e9e;
+      --bg: #f6f7f9;
+      --bg-dark: #e1e5eb;
+      --card: #fff;
+      --accent: #2e86ab;
+      --accent-dark: #1c6a8a;
+      --accent-light: #45a0c9;
+      --success: #28a745;
+      --success-dark: #1e7e34;
+      --danger: #dc3545;
+      --danger-dark: #bd2130;
+      
+      --border-radius: 12px;
+      --border-radius-sm: 8px;
+      --border-radius-lg: 16px;
+      
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+      --shadow-card-hover: 0 6px 16px rgba(0, 0, 0, 0.1);
+      
+      --transition: all 0.3s ease;
+      --transition-fast: all 0.15s ease;
+      
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+      
+      --font-size-sm: 0.875rem;
+      --font-size-md: 1rem;
+      --font-size-lg: 1.25rem;
+      --font-size-xl: 1.5rem;
+      --font-size-xxl: 1.8rem;
+    }
+
+    /* ===== RESET & BASE STYLES ===== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Inter, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: #222;
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: var(--transition-fast);
+    }
+
+    a:hover, a:focus {
+      color: var(--accent-dark);
+      text-decoration: underline;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    button:focus, input:focus, textarea:focus, select:focus {
+      outline: 2px solid var(--accent-light);
+      outline-offset: 2px;
+    }
+
+    /* ===== LAYOUT & CONTAINERS ===== */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--spacing-md);
+    }
+
+    /* ===== HEADER & NAVIGATION ===== */
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: var(--spacing-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-md);
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: var(--font-size-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .logo-accent {
+      color: var(--accent);
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: var(--spacing-md);
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-sm);
+      transition: var(--transition-fast);
+    }
+
+    nav a:hover, nav a:focus {
+      background: rgba(255, 255, 255, 0.1);
+      text-decoration: none;
+    }
+
+    nav a[aria-current="page"] {
+      background: rgba(255, 255, 255, 0.2);
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+      align-items: center;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--border-radius);
+      border: 0;
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+      gap: var(--spacing-xs);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-sm {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      font-size: var(--font-size-sm);
+    }
+
+    .btn-lg {
+      padding: var(--spacing-md) var(--spacing-lg);
+      font-size: var(--font-size-md);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+
+    .btn-outline:hover:not(:disabled), .btn-outline:focus:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled), .btn-primary:focus:not(:disabled) {
+      background: var(--accent-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .btn-success:hover:not(:disabled), .btn-success:focus:not(:disabled) {
+      background: var(--success-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-danger:hover:not(:disabled), .btn-danger:focus:not(:disabled) {
+      background: var(--danger-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    /* Animation de pulsation pour les boutons d'enchère */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .btn-pulse {
+      animation: pulse 2s infinite;
+    }
+
+    .btn-pulse:hover {
+      animation: none;
+    }
+
+    /* ===== FORM ELEMENTS ===== */
+    .form-control {
+      padding: var(--spacing-sm);
+      border: 1px solid var(--bg-dark);
+      border-radius: var(--border-radius-sm);
+      background: #fff;
+      transition: var(--transition-fast);
+      width: 100%;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.2);
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .form-row label {
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .search-bar {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+
+    .search-bar input {
+      flex: 1;
+    }
+
+    /* ===== HERO SECTION ===== */
+    #hero {
+      background: linear-gradient(90deg, rgba(142,27,27,0.95), rgba(46,134,171,0.95)), url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiM4ZTFiMWIiIG9wYWNpdHk9IjAuMSIvPjxwYXRoIGQ9Ik0wIDAgTDQgNCBNNCAwIEwwIDQgTTggMCBMMTAgMiBNMTAgMCBMOCAyIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjEiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+PC9zdmc+');
+      color: #fff;
+      padding: var(--spacing-xl);
+      border-radius: var(--border-radius-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-xl);
+      box-shadow: var(--shadow);
+    }
+
+    #hero h1 {
+      margin: 0;
+      font-size: var(--font-size-xxl);
+      line-height: 1.2;
+    }
+
+    /* ===== CARD COMPONENTS ===== */
+    .card {
+      background: var(--card);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-md);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+      transition: var(--transition);
+      height: 100%;
+    }
+
+    .card:hover, .card:focus-within {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: var(--border-radius-sm);
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+
+    .countdown {
+      font-size: var(--font-size-sm);
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .auction-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-top: auto;
+    }
+
+    /* ===== GRID LAYOUTS ===== */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-md);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-md);
+    }
+
+    /* ===== MODAL ===== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-md);
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: #fff;
+      padding: var(--spacing-lg);
+      border-radius: var(--border-radius-lg);
+      max-width: 540px;
+      width: 100%;
+      box-shadow: var(--shadow-hover);
+      animation: slideUp 0.3s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal h3 {
+      margin: 0 0 var(--spacing-md) 0;
+      font-size: var(--font-size-xl);
+    }
+
+    /* ===== TOAST NOTIFICATIONS ===== */
+    .toast {
+      position: fixed;
+      right: var(--spacing-md);
+      bottom: var(--spacing-md);
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius);
+      color: #fff;
+      min-width: 240px;
+      display: none;
+      z-index: 1100;
+      box-shadow: var(--shadow);
+      animation: slideInRight 0.3s ease;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .toast.show {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .toast.info { background: var(--muted); }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+
+    /* ===== FOOTER ===== */
+    footer {
+      margin-top: var(--spacing-xl);
+      padding: var(--spacing-lg) 0;
+      color: var(--muted);
+      border-top: 1px solid var(--bg-dark);
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+
+    /* ===== UTILITY CLASSES ===== */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .mt-1 { margin-top: var(--spacing-sm); }
+    .mt-2 { margin-top: var(--spacing-md); }
+    .mt-3 { margin-top: var(--spacing-lg); }
+    .mt-4 { margin-top: var(--spacing-xl); }
+
+    /* ===== RESPONSIVE DESIGN ===== */
+    @media (max-width: 900px) {
+      .header-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+      }
+      
+      nav ul {
+        justify-content: center;
+      }
+      
+      .header-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .search-bar {
+        flex-direction: column;
+      }
+      
+      .hero-content {
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 600px) {
+      :root {
+        --font-size-lg: 1.1rem;
+        --font-size-xl: 1.3rem;
+        --font-size-xxl: 1.5rem;
+      }
+      
+      nav ul {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-xs);
+      }
+      
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-content {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-container">
+      <div style="display:flex;gap:var(--spacing-md);align-items:center;flex-wrap:wrap">
+        <div class="logo" aria-label="EnchèresAlgérie - Accueil">
+          Enchères<span class="logo-accent">Algérie</span>
+        </div>
+        <nav aria-label="Navigation principale">
+          <ul>
+            <li><a href="#accueil" aria-current="page">Accueil</a></li>
+            <li><a href="#enchères">Enchères</a></li>
+            <li><a href="#comment-acheter">Comment acheter</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="header-actions">
+        <input id="quickSearch" class="form-control" placeholder="Rechercher un lot, une catégorie..." aria-label="Rechercher">
+        <button class="btn btn-outline" id="btnNewAuction" aria-label="Créer une annonce">Créer une annonce</button>
+        <div id="authButtons">
+          <button class="btn btn-outline" id="openLogin">Connexion</button>
+          <button class="btn btn-primary" id="openRegister">Inscription</button>
+        </div>
+        <div id="userMenu" style="display:none;align-items:center;gap:var(--spacing-sm)">
+          <span id="welcomeUser" style="font-weight:600" aria-live="polite"></span>
+          <button class="btn btn-outline" id="btnLogout">Déconnexion</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="hero">
+      <div class="hero-content">
+        <h1>Enchérissez sur les meilleures occasions en Algérie</h1>
+        <p>Prototype fonctionnel — Simulation front-end utilisant localStorage (pas de back-end). Toutes les actions sont locales au navigateur.</p>
+      </div>
+      <div class="search-bar">
+        <input id="heroSearch" class="form-control" placeholder="Rechercher un lot, une catégorie..." aria-label="Rechercher dans les enchères">
+        <button class="btn btn-primary" id="btnSearch">Rechercher</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Enchères en cours</h2>
+      <div id="auctionsGrid" class="grid" role="list" aria-label="Liste des enchères en cours">
+        <!-- cartes d'enchères -->
+      </div>
+    </section>
+
+    <section class="mt-4">
+      <h2>Comment ça marche?</h2>
+      <div class="features-grid">
+        <div class="card">
+          <strong>1 — Inscription</strong>
+          <p>Créez un compte en quelques secondes. (Stocké localement dans le navigateur pour cette démo.)</p>
+        </div>
+        <div class="card">
+          <strong>2 — Participation</strong>
+          <p>Enchérissez sur des lots, augmentez votre offre et suivez l'historique.</p>
+        </div>
+        <div class="card">
+          <strong>3 — Paiement & Livraison</strong>
+          <p>Procédures simulées. Pour un vrai site, relier à une API de paiement et logistique.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-content">
+      <div>
+        <strong>EnchèresAlgérie</strong><br>
+        Plateforme d'enchères (prototype)
+      </div>
+      <div>&copy; 2025 — Conforme à la législation locale (démo)</div>
+    </div>
+  </footer>
+
+  <!-- Modals -->
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"></div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast info" role="alert" aria-live="assertive"></div>
+
+  <script>
+    // --- UTILITAIRES ---
+    const $ = sel => document.querySelector(sel);
+    const createEl = (tag, attrs = {}) => { 
+      const el = document.createElement(tag); 
+      Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v)); 
+      return el; 
+    };
+
+    function showToast(msg, type = 'info', ms = 3500){
+      const t = $('#toast'); 
+      t.textContent = msg; 
+      t.className = 'toast show ' + (type === 'success' ? 'success' : type === 'error' ? 'error' : 'info');
+      t.setAttribute('aria-label', `${type} notification: ${msg}`);
+      
+      setTimeout(() => {
+        t.className = 'toast';
+        t.removeAttribute('aria-label');
+      }, ms);
+    }
+
+    // --- STORAGE (localStorage simulation d'un backend) ---
+    const STORAGE_KEYS = { USERS: 'ea_users_v1', AUCTIONS: 'ea_auctions_v1', SESSION: 'ea_session_v1' };
+
+    function loadJSON(key, fallback){ 
+      try { 
+        const raw = localStorage.getItem(key); 
+        return raw ? JSON.parse(raw) : fallback; 
+      } catch(e) { 
+        return fallback; 
+      } 
+    }
+    
+    function saveJSON(key, obj){ 
+      localStorage.setItem(key, JSON.stringify(obj)); 
+    }
+
+    // users: [{id, name, email, passwordHash}]
+    function seedIfEmpty(){
+      if(!loadJSON(STORAGE_KEYS.USERS, null)){
+        const defaultUser = { id: 'u1', name: 'Test User', email: 'test@exemple.dz', passwordHash: btoa('password123') };
+        saveJSON(STORAGE_KEYS.USERS, [defaultUser]);
+      }
+      if(!loadJSON(STORAGE_KEYS.AUCTIONS, null)){
+        const now = Date.now();
+        const sample = [
+          { id: 'a1', title: 'Peinture algérienne contemporaine', description:'Belle toile contemporaine.', image:'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjE1MCIgeT0iOTAiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiPk9ldXZyZSBkJ2FydDwvdGV4dD48L3N2Zz4=', currentBid: 45000, bids:[], endDate: new Date(now + 3*24*3600*1000).toISOString() },
+          { id: 'a2', title: 'Renault Symbol 2018', description:'Voiture en état moyen.', image:'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjE1MCIgeT0iOTAiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiPlZlaGljdWxlPC90ZXh0Pjwvc3ZnPg==', currentBid: 1850000, bids:[], endDate: new Date(now + 1*24*3600*1000).toISOString() },
+          { id: 'a3', title: 'Collection de tapis algériens', description:'Ensemble de tapis traditionnels.', image:'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjE1MCIgeT0iOTAiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiPlRhcGlzPC90ZXh0Pjwvc3ZnPg==', currentBid: 120000, bids:[], endDate: new Date(now + 5*24*3600*1000).toISOString() }
+        ];
+        saveJSON(STORAGE_KEYS.AUCTIONS, sample);
+      }
+    }
+
+    // --- AUTH ---
+    function getUsers(){ return loadJSON(STORAGE_KEYS.USERS, []) }
+    function getAuctions(){ return loadJSON(STORAGE_KEYS.AUCTIONS, []) }
+    function getSession(){ return loadJSON(STORAGE_KEYS.SESSION, null) }
+    function saveSession(obj){ saveJSON(STORAGE_KEYS.SESSION, obj) }
+
+    function register({name, email, password}){
+      const users = getUsers();
+      if(users.some(u => u.email.toLowerCase() === email.toLowerCase())){ 
+        showToast('Cet e-mail est déjà utilisé','error'); 
+        return false; 
+      }
+      const id = 'u' + Date.now();
+      const u = { id, name, email, passwordHash: btoa(password) };
+      users.push(u); 
+      saveJSON(STORAGE_KEYS.USERS, users);
+      showToast('Inscription réussie — vous êtes connecté', 'success');
+      saveSession({ userId: id });
+      updateUIForAuth();
+      return true;
+    }
+
+    function login({email, password}){
+      const users = getUsers();
+      const found = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.passwordHash === btoa(password));
+      if(!found){ 
+        showToast('Identifiants incorrects','error'); 
+        return false; 
+      }
+      saveSession({ userId: found.id }); 
+      showToast('Connexion réussie','success'); 
+      updateUIForAuth(); 
+      return true;
+    }
+
+    function logout(){ 
+      localStorage.removeItem(STORAGE_KEYS.SESSION); 
+      updateUIForAuth(); 
+      showToast('Déconnecté','info'); 
+    }
+
+    function getCurrentUser(){ 
+      const s = getSession(); 
+      if(!s) return null; 
+      return getUsers().find(u => u.id === s.userId); 
+    }
+
+    // --- RENDER ---
+    function renderAuctions(filterText){
+      const grid = $('#auctionsGrid'); 
+      grid.innerHTML = '';
+      const auctions = getAuctions();
+      const now = Date.now();
+      const filtered = auctions.filter(a => !filterText || (a.title + ' ' + (a.description || '')).toLowerCase().includes(filterText.toLowerCase()));
+      
+      if(filtered.length === 0){ 
+        grid.innerHTML = '<div class="card text-center">Aucune enchère trouvée.</div>'; 
+        return; 
+      }
+      
+      filtered.sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+      
+      filtered.forEach(a => {
+        const card = document.createElement('div'); 
+        card.className = 'card';
+        card.setAttribute('role', 'listitem');
+        
+        const img = document.createElement('img'); 
+        img.src = a.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjE1MCIgeT0iOTAiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiPkltYWdlPC90ZXh0Pjwvc3ZnPg==';
+        img.alt = a.title;
+        card.appendChild(img);
+
+        const h3 = document.createElement('h3'); 
+        h3.textContent = a.title; 
+        card.appendChild(h3);
+        
+        const p = document.createElement('p'); 
+        p.textContent = a.description || ''; 
+        card.appendChild(p);
+        
+        const meta = document.createElement('div'); 
+        meta.className = 'meta';
+        
+        const left = document.createElement('div'); 
+        left.innerHTML = `<div style="font-weight:700">${formatCurrency(a.currentBid)} DZD</div><div style="font-size:0.9rem;color:var(--muted)">${a.bids.length} enchères</div>`;
+        
+        const right = document.createElement('div'); 
+        right.innerHTML = `<div class="countdown" data-end="${a.endDate}" data-id="${a.id}"></div>`;
+        
+        meta.appendChild(left); 
+        meta.appendChild(right); 
+        card.appendChild(meta);
+
+        const btns = document.createElement('div'); 
+        btns.className = 'auction-actions';
+        
+        const viewBtn = document.createElement('button'); 
+        viewBtn.className = 'btn btn-outline btn-sm'; 
+        viewBtn.textContent = 'Voir';
+        viewBtn.addEventListener('click', () => openAuctionDetail(a.id));
+        btns.appendChild(viewBtn);
+        
+        const bidBtn = document.createElement('button'); 
+        bidBtn.className = 'btn btn-primary btn-sm' + (new Date(a.endDate) > new Date() ? ' btn-pulse' : ''); 
+        bidBtn.textContent = new Date(a.endDate) <= new Date() ? 'Terminée' : 'Enchérir';
+        bidBtn.disabled = new Date(a.endDate) <= new Date();
+        bidBtn.addEventListener('click', () => attemptBid(a.id));
+        btns.appendChild(bidBtn);
+        
+        card.appendChild(btns);
+        grid.appendChild(card);
+      });
+      
+      updateCountdowns();
+    }
+
+    function formatCurrency(n){ 
+      try { 
+        return Number(n).toLocaleString('fr-DZ'); 
+      } catch(e) { 
+        return n; 
+      } 
+    }
+
+    // update countdowns periodically
+    function updateCountdowns(){
+      document.querySelectorAll('.countdown').forEach(el => {
+        const end = new Date(el.dataset.end).getTime();
+        const id = el.dataset.id;
+        const diff = end - Date.now();
+        
+        if(diff <= 0){ 
+          el.textContent = 'Terminé';
+          // disable bid buttons for this auction card
+          const btn = Array.from(document.querySelectorAll('.auction-actions .btn-primary')).find(b => {
+            return b && b.parentElement && b.parentElement.parentElement.querySelector('.countdown') && 
+                   b.parentElement.parentElement.querySelector('.countdown').dataset.id === id;
+          });
+          
+          if(btn){ 
+            btn.disabled = true; 
+            btn.textContent = 'Terminée';
+            btn.classList.remove('btn-pulse');
+          }
+        } else {
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const secs = Math.floor((diff % (1000 * 60)) / 1000);
+          el.textContent = `${days}j ${hours}h ${mins}m ${secs}s`;
+        }
+      });
+    }
+    
+    setInterval(updateCountdowns, 1000);
+
+    // --- Auction detail & bidding ---
+    function openAuctionDetail(auctionId){
+      const a = getAuctions().find(x => x.id === auctionId); 
+      if(!a){ 
+        showToast('Enchère introuvable','error'); 
+        return; 
+      }
+      
+      renderModal(`<h3 id="modalTitle">${escapeHtml(a.title)}</h3>
+        <img src="${a.image || ''}" alt="${escapeHtml(a.title)}" style="width:100%;height:220px;object-fit:cover;border-radius:6px;margin-bottom:8px">
+        <p>${escapeHtml(a.description || '')}</p>
+        <p><strong>Enchère actuelle:</strong> ${formatCurrency(a.currentBid)} DZD</p>
+        <p><strong>Fin:</strong> ${new Date(a.endDate).toLocaleString('fr-DZ')}</p>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-primary" id="modalBidBtn">Enchérir</button>
+          <button class="btn btn-outline" id="modalClose">Fermer</button>
+        </div>
+        <hr>
+        <h4>Historique des enchères</h4>
+        <div id="bidHistoryList">${renderBidHistoryHtml(a.bids)}</div>
+      `);
+      
+      $('#modalBidBtn').addEventListener('click', () => attemptBid(a.id));
+      $('#modalClose').addEventListener('click', closeModal);
+    }
+
+    function renderBidHistoryHtml(bids){ 
+      if(!bids || bids.length === 0) return '<div class="card">Aucune enchère pour le moment.</div>';
+      const users = getUsers();
+      return '<ul style="padding-left:18px;margin:0">' + bids.slice().reverse().map(b => { 
+        const u = users.find(x => x.id === b.userId); 
+        return `<li>${u ? escapeHtml(u.name) : 'Utilisateur inconnu'} — ${formatCurrency(b.amount)} DZD — ${new Date(b.date).toLocaleString('fr-DZ')}</li>`; 
+      }).join('') + '</ul>';
+    }
+
+    function attemptBid(auctionId){
+      const user = getCurrentUser();
+      if(!user){ 
+        showToast('Veuillez vous connecter pour enchérir','error'); 
+        openLoginModal(); 
+        return; 
+      }
+      
+      const auctions = getAuctions();
+      const a = auctions.find(x => x.id === auctionId); 
+      if(!a) { 
+        showToast('Enchère introuvable','error'); 
+        return; 
+      }
+      
+      if(new Date(a.endDate) <= new Date()){ 
+        showToast('Cette enchère est terminée','error'); 
+        renderAuctions($('#quickSearch').value || $('#heroSearch').value); 
+        return; 
+      }
+      
+      const min = Math.max(1, Math.round(a.currentBid * 0.02)); // increment 2%
+      const suggested = a.currentBid + min;
+      
+      const raw = prompt(`Votre offre (DZD) — montant minimum: ${formatCurrency(suggested)}`);
+      if(!raw) return;
+      
+      const value = Number(raw.toString().replace(/\s/g,''));
+      if(isNaN(value) || value < suggested){ 
+        showToast(`Offre invalide — minimale: ${formatCurrency(suggested)} DZD`,'error'); 
+        return; 
+      }
+      
+      // enregistrer enchère
+      a.currentBid = value; 
+      a.bids = a.bids || []; 
+      a.bids.push({ userId: user.id, amount: value, date: new Date().toISOString() });
+      saveJSON(STORAGE_KEYS.AUCTIONS, auctions);
+      showToast('Enchère enregistrée','success');
+      renderAuctions($('#quickSearch').value || $('#heroSearch').value);
+    }
+
+    // --- Create auction ---
+    function openCreateAuction(){ 
+      const user = getCurrentUser(); 
+      if(!user){ 
+        showToast('Connectez-vous pour créer une annonce','error'); 
+        openLoginModal(); 
+        return; 
+      }
+      
+      renderModal(`<h3 id="modalTitle">Créer une annonce</h3>
+        <div class="form-row"><label for="newTitle">Titre</label><input id="newTitle" class="form-control" placeholder="Titre"></div>
+        <div class="form-row"><label for="newDesc">Description</label><textarea id="newDesc" class="form-control" rows="4" placeholder="Description"></textarea></div>
+        <div class="form-row"><label for="newStart">Prix de départ (DZD)</label><input id="newStart" class="form-control" type="number" min="0" placeholder="Ex: 10000"></div>
+        <div class="form-row"><label for="newEnd">Date de fin</label><input id="newEnd" class="form-control" type="datetime-local"></div>
+        <div class="form-row"><label for="newImage">Image (optionnelle)</label><input id="newImage" class="form-control" type="file" accept="image/*"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" id="createAuctionBtn">Publier</button>
+          <button class="btn btn-outline" id="createCancel">Annuler</button>
+        </div>
+      `);
+      
+      $('#newImage').addEventListener('change', handleImagePreview);
+      $('#createCancel').addEventListener('click', closeModal);
+      $('#createAuctionBtn').addEventListener('click', async () => {
+        const title = $('#newTitle').value.trim(); 
+        const desc = $('#newDesc').value.trim(); 
+        const start = Number($('#newStart').value); 
+        const end = $('#newEnd').value;
+        
+        if(!title || !end || isNaN(start)) { 
+          showToast('Remplissez les champs obligatoires','error'); 
+          return; 
+        }
+        
+        const endDate = new Date(end);
+        if(endDate <= new Date()){ 
+          showToast('La date de fin doit être dans le futur','error'); 
+          return; 
+        }
+        
+        let imageData = ''; 
+        if($('#newImage').files && $('#newImage').files[0]){ 
+          imageData = await fileToDataUrl($('#newImage').files[0]); 
+        }
+        
+        const auctions = getAuctions(); 
+        const id = 'a' + Date.now();
+        auctions.push({ id, title, description: desc, image: imageData, currentBid: Number(start), bids: [], endDate: endDate.toISOString() });
+        saveJSON(STORAGE_KEYS.AUCTIONS, auctions);
+        showToast('Annonce publiée','success'); 
+        closeModal(); 
+        renderAuctions();
+      });
+    }
+
+    function handleImagePreview(e){ /* placeholder — preview not required in modal for this demo */ }
+    
+    function fileToDataUrl(file){ 
+      return new Promise((res, rej) => { 
+        const fr = new FileReader(); 
+        fr.onload = () => res(fr.result); 
+        fr.onerror = rej; 
+        fr.readAsDataURL(file); 
+      }); 
+    }
+
+    // --- Modal helper ---
+    function renderModal(html){ 
+      $('#modal').innerHTML = html; 
+      $('#modalBackdrop').style.display = 'flex'; 
+      $('#modalBackdrop').setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+    }
+    
+    function closeModal(){ 
+      $('#modalBackdrop').style.display = 'none'; 
+      $('#modal').innerHTML = ''; 
+      $('#modalBackdrop').setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = ''; // Re-enable scrolling
+    }
+    
+    $('#modalBackdrop').addEventListener('click', (e) => { 
+      if(e.target === $('#modalBackdrop')) closeModal(); 
+    });
+
+    // --- Login / Register UI ---
+    function openLoginModal(){ 
+      renderModal(`<h3 id="modalTitle">Connexion</h3>
+        <div class="form-row"><label for="loginEmail">E-mail</label><input id="loginEmail" class="form-control" type="email"></div>
+        <div class="form-row"><label for="loginPass">Mot de passe</label><input id="loginPass" class="form-control" type="password"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" id="doLogin">Se connecter</button>
+          <button class="btn btn-outline" id="toRegister">S'inscrire</button>
+        </div>
+      `);
+      
+      $('#doLogin').addEventListener('click', () => {
+        const email = $('#loginEmail').value.trim(); 
+        const pass = $('#loginPass').value; 
+        if(!email || !pass){ 
+          showToast('Remplissez tous les champs','error'); 
+          return; 
+        }
+        if(login({email, password: pass})){ 
+          closeModal(); 
+          renderAuctions(); 
+        }
+      });
+      
+      $('#toRegister').addEventListener('click', () => { 
+        closeModal(); 
+        openRegisterModal(); 
+      });
+    }
+
+    function openRegisterModal(){ 
+      renderModal(`<h3 id="modalTitle">Inscription</h3>
+        <div class="form-row"><label for="regName">Nom complet</label><input id="regName" class="form-control" placeholder="Ex: Mohamed"></div>
+        <div class="form-row"><label for="regEmail">E-mail</label><input id="regEmail" class="form-control" type="email" placeholder="exemple@domaine.dz"></div>
+        <div class="form-row"><label for="regPass">Mot de passe</label><input id="regPass" class="form-control" type="password"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" id="doRegister">S'inscrire</button>
+          <button class="btn btn-outline" id="regCancel">Annuler</button>
+        </div>
+      `);
+      
+      $('#doRegister').addEventListener('click', () => {
+        const name = $('#regName').value.trim(); 
+        const email = $('#regEmail').value.trim(); 
+        const pass = $('#regPass').value;
+        if(!name || !email || !pass){ 
+          showToast('Remplissez tous les champs','error'); 
+          return; 
+        }
+        if(register({name, email, password: pass})){ 
+          closeModal(); 
+          renderAuctions(); 
+        }
+      });
+      
+      $('#regCancel').addEventListener('click', closeModal);
+    }
+
+    function updateUIForAuth(){ 
+      const user = getCurrentUser(); 
+      if(user){ 
+        $('#authButtons').style.display = 'none'; 
+        $('#userMenu').style.display = 'flex'; 
+        $('#welcomeUser').textContent = user.name; 
+      } else { 
+        $('#authButtons').style.display = 'flex'; 
+        $('#userMenu').style.display = 'none'; 
+        $('#welcomeUser').textContent = ''; 
+      } 
+    }
+
+    // --- SEARCH & EVENTS ---
+    document.addEventListener('DOMContentLoaded', () => {
+      seedIfEmpty(); 
+      updateUIForAuth(); 
+      renderAuctions();
+      
+      // events
+      $('#openLogin').addEventListener('click', openLoginModal); 
+      $('#openRegister').addEventListener('click', openRegisterModal);
+      $('#btnLogout').addEventListener('click', () => { 
+        logout(); 
+        renderAuctions(); 
+      });
+      $('#btnSearch').addEventListener('click', () => { 
+        const q = $('#heroSearch').value.trim(); 
+        renderAuctions(q); 
+      });
+      $('#quickSearch').addEventListener('keyup', (e) => { 
+        if(e.key === 'Enter'){ 
+          renderAuctions($('#quickSearch').value.trim()); 
+        } 
+      });
+      $('#btnNewAuction').addEventListener('click', openCreateAuction);
+
+      // Add keyboard navigation support
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeModal();
+        }
+      });
+    });
+
+    // --- small helpers ---
+    function escapeHtml(s){ 
+      if(!s) return ''; 
+      return s.replace(/[&<>"']/g, function(c){ 
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]; 
+      }); 
+    }
+
+    // convenience: allow opening login when page loaded via a hash command
+    if(location.hash === '#login') setTimeout(() => openLoginModal(), 600);
+  </script>
+</body>
+</html>
